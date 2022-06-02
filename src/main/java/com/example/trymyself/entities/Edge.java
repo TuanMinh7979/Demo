@@ -17,10 +17,7 @@ import javax.persistence.*;
 public class Edge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "way_id")
-    private Way way;
+    private Long id;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,14 +42,5 @@ public class Edge {
         }//End if else
     }//End getNeighbour
 
-    public Double calculateDistance(NodeEntity source, NodeEntity target) {
-        return Haversine.distance(Double.parseDouble(source.getLat()), Double.parseDouble(source.getLon()),
-                Double.parseDouble(target.getLat()), Double.parseDouble(target.getLon()));
-    }
 
-    public Edge(Way way, NodeEntity desNodeEntity, NodeEntity srcNodeEntity) {
-        this.way = way;
-        this.desNodeEntity = desNodeEntity;
-        this.srcNodeEntity = srcNodeEntity;
-    }
 }
