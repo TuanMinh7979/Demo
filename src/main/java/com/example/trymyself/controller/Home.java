@@ -20,22 +20,31 @@ public class Home {
     private final OsmToDB osmToDB;
     private final DijkstraSearchAlgo dijkstraSearchAlgo;
 
-    @RequestMapping("settup")
-    @ResponseBody
+
+    @RequestMapping("")
     public String index() {
+        return "home/index";
+    }
+
+    @RequestMapping("setuposm")
+    @ResponseBody
+    public String setupOSM() {
         osmToDB.setupData();
         return "sc";
     }
 
 
-    @GetMapping("short-path")
+    @GetMapping("api/search")
     @ResponseBody
     public List<NodeEntityDto> getShortestPath(
-            @RequestParam(value = "srcnodeid") Long srcNodeId) {
+            @RequestParam(value = "srcnodeid") Long srcNodeId,
+            @RequestParam(value = "desnodeid") Long desNodeId) {
 
 
-        return dijkstraSearchAlgo.findShortestPath(srcNodeId);
+        return dijkstraSearchAlgo.findShortestPath(srcNodeId, desNodeId);
 
     }
+
+
 }
 

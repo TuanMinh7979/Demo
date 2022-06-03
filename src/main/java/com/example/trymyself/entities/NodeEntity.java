@@ -1,15 +1,13 @@
 package com.example.trymyself.entities;
 
-import com.example.trymyself.converter.ListLongToStringConverter;
+import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -28,6 +26,11 @@ public class NodeEntity {
 
 
     private Long prev;
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @NotNull
+    @Column(name = "seid", unique = true, nullable = false, insertable = false, updatable = false)
+    private int seid;
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "desNodeEntity")

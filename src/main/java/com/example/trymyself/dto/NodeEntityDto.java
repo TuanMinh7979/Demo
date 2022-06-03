@@ -1,5 +1,6 @@
 package com.example.trymyself.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,21 +13,31 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class NodeEntityDto {
+public class NodeEntityDto implements Comparable<NodeEntityDto> {
 
     private Long id;
     private String lat;
     private String lon;
 
     //addtional for searching
+    @JsonIgnore
     boolean visited;
-    private Long prev;
-    private Map<Long, Double> neighborDistanceMap = new HashMap<>();
 
-    private Double distance;
+    @JsonIgnore
+    private NodeEntityDto prev;
 
-    private List<Long> shortestPath = new ArrayList<>();
+    @JsonIgnore
+    private Map<Long, Double> neighbourDistanceMap = new HashMap<>();
+
+    //    @JsonIgnore
+    private Double distance = Double.MAX_VALUE;
+
+    @Override
+    public int compareTo(NodeEntityDto o) {
+        return Double.compare(this.distance, o.getDistance());
+    }
+}
 
 
 //    List<EdgeDto>
-}
+

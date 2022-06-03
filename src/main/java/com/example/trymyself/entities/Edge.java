@@ -32,15 +32,15 @@ public class Edge {
     boolean visited;
 
 
-    public Long getNeighbour(Long id) {
-        if (id == this.srcNodeEntity.getId()) {
-            return this.desNodeEntity.getId();
-        } else if (id == this.srcNodeEntity.getId()) {
-            return this.desNodeEntity.getId();
-        } else {
-            return null;
-        }//End if else
-    }//End getNeighbour
+//    public Long getNeighbour(Long id) {
+//        if (id == this.srcNodeEntity.getId()) {
+//            return this.desNodeEntity.getId();
+//        } else if (id == this.srcNodeEntity.getId()) {
+//            return this.desNodeEntity.getId();
+//        } else {
+//            return null;
+//        }//End if else
+//    }//End getNeighbour
 
 
 }

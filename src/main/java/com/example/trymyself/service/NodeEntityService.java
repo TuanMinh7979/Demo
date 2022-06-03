@@ -18,17 +18,13 @@ import java.util.List;
 public class NodeEntityService {
     private final NodeEntityRepo nodeEntityRepo;
     private final EdgeRepo edgeRepo;
-
     private final NodeEntityMapper nodeEntityMapper;
 
     //for searching
     public NodeEntityDto getNodeEntityDto(Long nodeEntityId) {
         NodeEntity nodeEntity = nodeEntityRepo.findById(nodeEntityId).get();
         List<Edge> edges = edgeRepo.getEdgesByNodeEntity(nodeEntityId);
-
-
-
-        return nodeEntityMapper.toDto(nodeEntity, edges);
+        return nodeEntityMapper.toFullDto(nodeEntity, edges);
 
     }
 

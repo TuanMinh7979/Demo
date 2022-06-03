@@ -11,20 +11,44 @@ import java.util.Map;
 
 @Component
 public class NodeEntityMapper {
-    public NodeEntityDto toDto(NodeEntity model, List<Edge> dep) {
+    public NodeEntityDto toFullDto(NodeEntity model, List<Edge> dep) {
         NodeEntityDto dto = new NodeEntityDto();
         Map<Long, Double> neighbourDistanceMap = new HashMap<>();
 //        System.out.println("************************&*&*&*&*&*&*&*&*&*&*&*&******************" + model.getId());
 //        System.out.println("______________" + dep.size());
+
+
         for (Edge edgei : dep) {
-            neighbourDistanceMap.put(edgei.getDesNodeEntity().getId() == model.getId() ?
-                    edgei.getSrcNodeEntity().getId()
-                    : edgei.getDesNodeEntity().getId(), edgei.getDistance());
+
+            long curId = model.getId();
+            long desNodeId = edgei.getDesNodeEntity().getId();
+            long srcNodeId = edgei.getSrcNodeEntity().getId();
+            //Long Long must use equal
+            if (curId == desNodeId) {
+                neighbourDistanceMap.put(srcNodeId, edgei.getDistance());
+            }
+            if (curId == srcNodeId) {
+                neighbourDistanceMap.put(desNodeId, edgei.getDistance());
+            }
         }
+
         dto.setId(model.getId());
         dto.setLon(model.getLon());
         dto.setLat(model.getLat());
         dto.setNeighbourDistanceMap(neighbourDistanceMap);
+
+
         return dto;
     }
+
+    public NodeEntityDto toDto(NodeEntity model) {
+        NodeEntityDto dto = new NodeEntityDto();
+
+        dto.setId(model.getId());
+        dto.setLon(model.getLon());
+        dto.setLat(model.getLat());
+        return dto;
+    }
+
 }
+

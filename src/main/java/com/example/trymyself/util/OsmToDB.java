@@ -16,7 +16,6 @@ import java.io.File;
 import java.util.List;
 
 @Component
-
 public class OsmToDB {
     //    private MultipartFile osmFile;
     @Autowired
@@ -30,7 +29,7 @@ public class OsmToDB {
         try {
 
             SAXReader reader = new SAXReader();
-            Document document = reader.read(new File("D:\\COCCOC\\supermini.osm"));
+            Document document = reader.read(new File("D:\\COCCOC\\DHCT.osm"));
 
             Element root = document.getRootElement();
 

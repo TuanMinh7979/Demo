@@ -1,83 +1,68 @@
 package com.example.trymyself.algo.searchalgo;
 
 import com.example.trymyself.dto.NodeEntityDto;
-import com.example.trymyself.repo.NodeEntityRepo;
 import com.example.trymyself.service.NodeEntityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
 public class DijkstraSearchAlgo extends AbstractSearchAlgo {
 
-    private final NodeEntityRepo nodeEntityRepo;
     private final NodeEntityService nodeEntityService;
 
 
-    public NodeEntityDto getLowestDistanceEdge(Set<NodeEntityDto> unsettledNodes) {
-
-        NodeEntityDto lowestDistanceNode = null;
-        Double lowestDistance = Double.MAX_VALUE;
-        for (NodeEntityDto node : unsettledNodes) {
-            Double nodeDistance = node.getDistance();
-            if (nodeDistance < lowestDistance) {
-                lowestDistance = nodeDistance;
-                lowestDistanceNode = node;
-            }
-        }
-        return lowestDistanceNode;
-    }
-
-
-    public List<NodeEntityDto> findShortestPath(Long srcNodeId) {
-
-
-        Set<NodeEntityDto> settledNodes = new HashSet<>();
-        Set<NodeEntityDto> unsettledNodes = new HashSet<>();
+    public List<NodeEntityDto> findShortestPath(Long srcNodeId, Long targetId) {
+        Map<Long, Boolean> visitedNodeMarks = new HashMap<>();
+        List<NodeEntityDto> visitedNodes = new ArrayList<>();
 
         NodeEntityDto srcNode = nodeEntityService.getNodeEntityDto(srcNodeId);
         srcNode.setDistance(0.0);
+        PriorityQueue<NodeEntityDto> priorityQueue = new PriorityQueue<>();
+        priorityQueue.add(srcNode);
 
+        visitedNodeMarks.put(srcNodeId, true);
+        visitedNodes.add(srcNode);
 
-        unsettledNodes.add(srcNode);
+        while (!priorityQueue.isEmpty()) {
+            NodeEntityDto curNode = priorityQueue.poll();
+            for (Long nbiId : curNode.getNeighbourDistanceMap().keySet()) {
 
-        while (unsettledNodes.size() != 0) {
-            System.out.println("HEAR 5 MANY TIME");
-            NodeEntityDto curNode = getLowestDistanceEdge(unsettledNodes);
-            unsettledNodes.remove(curNode);
-            for (Map.Entry<Long, Double> adjacencyPair :
-                    curNode.getNeighbourDistanceMap().entrySet()) {
-                System.out.println("HEAR FOR 2 MANY TIME");
-                NodeEntityDto adjacentNode = nodeEntityService.getNodeEntityDto(adjacencyPair.getKey());
-                Double edgeWeight = adjacencyPair.getValue();
-                if (!settledNodes.contains(adjacentNode)) {
+                if (visitedNodeMarks.get(nbiId) == null || visitedNodeMarks.get(nbiId) == false) {
+                    NodeEntityDto nbi = nodeEntityService.getNodeEntityDto(nbiId);
+                    Double newDis = curNode.getDistance() + curNode.getNeighbourDistanceMap().get(nbiId);
 
-                    calculateMinimumDistance(adjacentNode, edgeWeight, curNode);
-                    unsettledNodes.add(adjacentNode);
+                    if (newDis < nbi.getDistance()) {
+                        priorityQueue.remove(nbi);
+                        nbi.setDistance(newDis);
+                        nbi.setPrev(curNode);
+                        priorityQueue.add(nbi);
+                    }
                 }
+
             }
-            settledNodes.add(curNode);
+            visitedNodeMarks.put(curNode.getId(), true);
+            visitedNodes.add(curNode);
         }
 
-        return settledNodes.stream().collect(Collectors.toList());
-    }
 
-    private void calculateMinimumDistance(NodeEntityDto evaluationNode,
-                                          Double edgeWeigh, NodeEntityDto sourceNode) {
-        Double sourceDistance = sourceNode.getDistance();
-        if (sourceDistance + edgeWeigh < evaluationNode.getDistance()) {
-            System.out.println("HEAR 5 MANY TIME");
-            evaluationNode.setDistance(sourceDistance + edgeWeigh);
-            List<NodeEntityDto> shortestPath = sourceNode.getShortestPath();
-            shortestPath.add(sourceNode);
-            evaluationNode.setShortestPath(shortestPath);
+        NodeEntityDto target = null;
+        for (NodeEntityDto rsi : visitedNodes) {
+            if (rsi.getId().equals(targetId)) {
+                target = rsi;
+                break;
+            }
         }
+        List<NodeEntityDto> path = new ArrayList<>();
+        for (NodeEntityDto node = target; node != null; node = node.getPrev()) {
+            path.add(node);
+        }
+        Collections.reverse(path);
+        return path;
+
+
     }
 
 
