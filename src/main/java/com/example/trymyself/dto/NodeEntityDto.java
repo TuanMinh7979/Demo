@@ -21,7 +21,7 @@ public class NodeEntityDto implements Comparable<NodeEntityDto> {
 
     //addtional for searching
     @JsonIgnore
-    boolean visited;
+    boolean visited = false;
 
     @JsonIgnore
     private NodeEntityDto prev;

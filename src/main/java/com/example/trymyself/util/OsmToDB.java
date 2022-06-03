@@ -29,7 +29,7 @@ public class OsmToDB {
         try {
 
             SAXReader reader = new SAXReader();
-            Document document = reader.read(new File("D:\\COCCOC\\DHCT.osm"));
+            Document document = reader.read(new File("D:\\COCCOC\\map.osm"));
 
             Element root = document.getRootElement();
 

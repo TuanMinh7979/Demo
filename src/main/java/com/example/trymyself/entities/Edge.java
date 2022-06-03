@@ -29,7 +29,6 @@ public class Edge {
     NodeEntity srcNodeEntity;
 
     Double distance;
-    boolean visited;
 
 
 //    public Long getNeighbour(Long id) {

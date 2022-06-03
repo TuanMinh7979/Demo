@@ -22,10 +22,6 @@ public class NodeEntity {
     private Long id;
     private String lat;
     private String lon;
-    boolean visited;
-
-
-    private Long prev;
 
 
     @Column(name = "seid", insertable = false, updatable = false)

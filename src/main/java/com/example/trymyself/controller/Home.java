@@ -30,12 +30,12 @@ public class Home {
         return "home/index";
     }
 
-    @RequestMapping("setuposm")
-    @ResponseBody
-    public String setupOSM() {
-        osmToDB.setupData();
-        return "sc";
-    }
+//    @RequestMapping("setuposm")
+//    @ResponseBody
+//    public String setupOSM() {
+//        osmToDB.setupData();
+//        return "sc";
+//    }
 
 
     @GetMapping("api/search")
@@ -44,12 +44,12 @@ public class Home {
             @RequestParam(value = "srcnodeid") Long srcNodeId,
             @RequestParam(value = "desnodeid") Long desNodeId) {
 
-        if (srcNodeId <= 888 && desNodeId <= 888) {
+        if (srcNodeId <= 1273 && desNodeId <= 1273) {
             srcNodeId = nodeEntityRepo.getNodeEntityBySeid(srcNodeId).getId();
             desNodeId = nodeEntityRepo.getNodeEntityBySeid(desNodeId).getId();
-        } else if (srcNodeId <= 888) {
+        } else if (srcNodeId <= 1273) {
             srcNodeId = nodeEntityRepo.getNodeEntityBySeid(srcNodeId).getId();
-        } else {
+        } else if (desNodeId <= 1273) {
             desNodeId = nodeEntityRepo.getNodeEntityBySeid(desNodeId).getId();
         }
 
