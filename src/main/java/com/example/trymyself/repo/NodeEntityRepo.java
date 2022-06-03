@@ -21,5 +21,7 @@ public interface NodeEntityRepo extends JpaRepository<NodeEntity, Long> {
     @Query(value = "select n from NodeEntity n left join fetch n.desOfEdges where n.id = :id ")
     NodeEntity getNodeEntityWithDesOfEdgeSet(@Param("id") Long id);
 
+    NodeEntity getNodeEntityBySeid(Long id);
+
 
 }

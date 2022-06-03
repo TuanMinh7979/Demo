@@ -1,8 +1,17 @@
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+<!--<!DOCTYPE html>-->
+<html lang="en" xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/home/home_layout.html}">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
-      integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+
+<th:block layout:fragment="addcss">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+          integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+
+</th:block>
+
 <style>
     body {
         padding: 16px;
@@ -14,6 +23,11 @@
         height: 100%;
     }
 
+    #newmap {
+        width: 100%;
+        height: 100%;
+    }
+
 </style>
 <head>
 
@@ -21,36 +35,37 @@
 <body>
 
 <div class="col-12">
-    <div class="col-6 float-left">
-        <label>FROM:</label> <input type="text">
-        <label>TO:</label> <input type="text">
-        <button class="btn btn-success">FIND</button>
-    </div>
+    <form class="col-6 float-left" method="get">
+        <label>FROM:</label> <input name="srcnodeid" type="text" required>
+        <label>TO:</label> <input name="desnodeid" type="text" required>
+        <button type="submit" id="searchbtn" class="btn btn-success">FIND</button>
+    </form>
     <div class="col-3 float-right">
         <a href="">Doc</a>
     </div>
 </div>
 <br/>
 <br/>
+<div  layout:fragment="content">
 
+    <div id="map" class="col-12 ">
 
-<div id="map" class="col-12 ">
+    </div>
+    <div id="newmap" class="col-12 ">
 
+    </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<th:block layout:fragment="addscript">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+            crossorigin="anonymous"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
-        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"
-        integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2"
-        crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
-<script th:src="@{/resource/js/home/index.js}"></script>
+
+    <script th:src="@{/resource/js/home/index.js}"></script>
+</th:block>
 </body>
 
 </html>

@@ -15,7 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
+
 
 public class NodeEntity {
     @Id
@@ -27,10 +27,9 @@ public class NodeEntity {
 
     private Long prev;
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
-    @Column(name = "seid", unique = true, nullable = false, insertable = false, updatable = false)
-    private int seid;
+
+    @Column(name = "seid", insertable = false, updatable = false)
+    private Long seid;
 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "desNodeEntity")
