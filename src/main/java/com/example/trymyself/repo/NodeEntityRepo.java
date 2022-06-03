@@ -12,10 +12,14 @@ import java.util.Set;
 @Repository
 public interface NodeEntityRepo extends JpaRepository<NodeEntity, Long> {
 
+
+    //for writein of onetomany
     @Query(value = "select n from NodeEntity n left join fetch n.srcOfEdges where n.id = :id")
     NodeEntity getNodeEntityWithSrcOfEdgeSet(@Param("id") Long id);
 
+    //for writein of onetomany
     @Query(value = "select n from NodeEntity n left join fetch n.desOfEdges where n.id = :id ")
     NodeEntity getNodeEntityWithDesOfEdgeSet(@Param("id") Long id);
+
 
 }

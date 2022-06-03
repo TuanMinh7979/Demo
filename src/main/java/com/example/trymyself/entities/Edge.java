@@ -28,15 +28,15 @@ public class Edge {
     @JoinColumn(name = "src_node_id")
     NodeEntity srcNodeEntity;
 
-    Double distance = null;
+    Double distance;
     boolean visited;
 
 
-    public NodeEntity getNeighbour(NodeEntity v) {
-        if (v == this.srcNodeEntity) {
-            return this.desNodeEntity;
-        } else if (v == this.srcNodeEntity) {
-            return this.desNodeEntity;
+    public Long getNeighbour(Long id) {
+        if (id == this.srcNodeEntity.getId()) {
+            return this.desNodeEntity.getId();
+        } else if (id == this.srcNodeEntity.getId()) {
+            return this.desNodeEntity.getId();
         } else {
             return null;
         }//End if else

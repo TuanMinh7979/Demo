@@ -30,17 +30,14 @@ public class OsmToDB {
         try {
 
             SAXReader reader = new SAXReader();
-            Document document = reader.read(new File("D:\\COCCOC\\CTUCNTT.osm"));
+            Document document = reader.read(new File("D:\\COCCOC\\supermini.osm"));
 
             Element root = document.getRootElement();
-            System.out.println("Root element :" + root.getName());
 
             List<Node> nodeEntityNodes = document.selectNodes("//node");
-            System.out.println("nodes sz: " + nodeEntityNodes.size());
             setupNodeEntites(nodeEntityNodes);
 
             List<Node> wayNodes = document.selectNodes("//way");
-            System.out.println("way size " + wayNodes.size());
             setupEdges(wayNodes);
 
 
@@ -81,9 +78,11 @@ public class OsmToDB {
 
                     Node node2 = nodeEntityNodes.get(i + 1);
                     NodeEntity nodeEntity2 = nodeEntityRepo.getNodeEntityWithDesOfEdgeSet(Long.valueOf(node2.valueOf("@ref")));
+
                     Edge savedEdge = setAEdge(nodeEntity1, nodeEntity2);
 
                     nodeEntity1.addSrcOfEdges(savedEdge);
+
                     nodeEntity2.addDesOfEdges(savedEdge);
 //                    nodeEntity1.getSrcOfEdges().add(savedEdge);
 //                    nodeEntity2.getDesOfEdges().add(savedEdge);

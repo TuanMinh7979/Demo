@@ -20,10 +20,13 @@ class NodeEntityRepoTest {
 
     @Test
     public void test() {
-        NodeEntity nodeEntity = nodeEntityRepo.findById(1340701136L).get();
-//        NodeEntity nodeEntity = nodeEntityRepo.getNodeEntityWithSrcOfEdgeSet(1038748282L);
-        System.out.println(nodeEntity.getId());
-        System.out.println(nodeEntity.getLat());
+
+        String s = "abced";
+        s = s.substring(0, s.length());
+//        NodeEntity nodeEntity = nodeEntityRepo.findById(1340701136L).get();
+////        NodeEntity nodeEntity = nodeEntityRepo.getNodeEntityWithSrcOfEdgeSet(1038748282L);
+//        System.out.println(nodeEntity.getId());
+//        System.out.println(nodeEntity.getLat());
     }
 
 }
