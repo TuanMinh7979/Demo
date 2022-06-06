@@ -106,7 +106,7 @@ public class OsmToDB {
         double endLat = Double.parseDouble(desN.getLat());
         double endLon = Double.parseDouble(desN.getLon());
 
-        newEdge.setDistance(Haversine.distance(startLat, startLon, endLat, endLon));
+        newEdge.setWeight(Haversine.distance(startLat, startLon, endLat, endLon));
 
         return edgeRepo.save(newEdge);
 

@@ -24,4 +24,7 @@ public interface NodeEntityRepo extends JpaRepository<NodeEntity, Long> {
     NodeEntity getNodeEntityBySeid(Long id);
 
 
+
+
+
 }

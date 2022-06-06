@@ -7,12 +7,20 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface EdgeRepo extends JpaRepository<Edge, Long> {
 
     //for read out manytoone
-    @Query(value = "select e from Edge e where e.srcNodeEntity.id = :nodeId or e.desNodeEntity.id = :nodeId")
-    List<Edge> getEdgesByNodeEntity(@Param("nodeId") Long nodeId);
+    @Query(value = "select e from Edge e join fetch e.desNodeEntity where e.srcNodeEntity.id = :nodeId")
+    Set<Edge> getEdgesBySrcNodeEntity(@Param("nodeId") Long nodeId);
+
+    @Query(value = "select e from Edge e join fetch e.srcNodeEntity where e.desNodeEntity.id = :nodeId")
+    Set<Edge> getEdgesByDesNodeEntity(@Param("nodeId") Long nodeId);
+
+
+
+
 
 }

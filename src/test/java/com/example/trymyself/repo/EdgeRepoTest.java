@@ -1,5 +1,6 @@
 package com.example.trymyself.repo;
 
+import com.example.trymyself.entities.Edge;
 import com.example.trymyself.entities.NodeEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,24 +8,26 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.annotation.Rollback;
 
-import java.util.Arrays;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Rollback(false)
-class NodeEntityRepoTest {
+class EdgeRepoTest {
 
     @Autowired
-    private NodeEntityRepo nodeEntityRepo;
+    private EdgeRepo edgeRepo;
 
     @Test
     public void test() {
-//        Set<NodeEntity> rs= nodeEntityRepo.getBunchOfNodeEntity(Arrays.asList(88978131L, 88984173L, 540441905L));
-
-//        for(NodeEntity n: rs){
-//            System.out.println(n.getSrcOfEdges());
+        Set<Edge> rs = edgeRepo.getEdgesBySrcNodeEntity(5177656451L);
 //        }
+        for (Edge rsi : rs) {
+            NodeEntity desNode = rsi.getDesNodeEntity();
+            System.out.println(desNode.getLat() + "   " + desNode.getLon());
+        }
 
     }
 

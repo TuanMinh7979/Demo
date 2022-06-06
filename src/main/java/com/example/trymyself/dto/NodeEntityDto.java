@@ -6,8 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.*;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,6 +14,7 @@ import java.util.*;
 public class NodeEntityDto implements Comparable<NodeEntityDto> {
 
     private Long id;
+
     private String lat;
     private String lon;
 
@@ -26,8 +25,7 @@ public class NodeEntityDto implements Comparable<NodeEntityDto> {
     @JsonIgnore
     private NodeEntityDto prev;
 
-    @JsonIgnore
-    private Map<Long, Double> neighbourDistanceMap = new HashMap<>();
+
 
     //    @JsonIgnore
     private Double distance = Double.MAX_VALUE;

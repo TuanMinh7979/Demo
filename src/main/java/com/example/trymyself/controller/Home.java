@@ -30,12 +30,12 @@ public class Home {
         return "home/index";
     }
 
-//    @RequestMapping("setuposm")
-//    @ResponseBody
-//    public String setupOSM() {
-//        osmToDB.setupData();
-//        return "sc";
-//    }
+    @RequestMapping("setuposm")
+    @ResponseBody
+    public String setupOSM() {
+        osmToDB.setupData();
+        return "sc";
+    }
 
 
     @GetMapping("api/search")
@@ -53,7 +53,11 @@ public class Home {
             desNodeId = nodeEntityRepo.getNodeEntityBySeid(desNodeId).getId();
         }
 
-        return dijkstraSearchAlgo.findShortestPath(srcNodeId, desNodeId);
+        //thuat toan
+        List<NodeEntityDto> rs = dijkstraSearchAlgo.findShortestPath(srcNodeId, desNodeId);
+
+        return rs;
+
 
     }
 

@@ -30,19 +30,21 @@
 
 <body>
 
-<div class="col-12">
-    <form class="col-6 float-left" method="get">
-        <label>FROM:</label> <input name="srcnodeid" type="text" required>
-        <label>TO:</label> <input name="desnodeid" type="text" required>
-        <button type="submit" id="searchbtn" class="btn btn-success">FIND</button>
-    </form>
-    <div class="col-3 float-right">
 
-    </div>
-</div>
-<br/>
-<br/>
 <div layout:fragment="content">
+
+    <div class="col-12">
+        <form class="col-6 float-left" method="get">
+            <label>FROM:</label> <input name="srcnodeid" type="text" required>
+            <label>TO:</label> <input name="desnodeid" type="text" required>
+            <button type="submit" id="searchbtn" class="btn btn-success">FIND</button>
+        </form>
+        <div class="col-3 float-right">
+
+        </div>
+    </div>
+    <br/>
+    <br/>
 
     <div id="map" class="col-12 ">
 

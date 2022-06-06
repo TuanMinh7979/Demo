@@ -28,7 +28,9 @@ public class Edge {
     @JoinColumn(name = "src_node_id")
     NodeEntity srcNodeEntity;
 
-    Double distance;
+    Double weight;
+
+
 
 
 //    public Long getNeighbour(Long id) {
