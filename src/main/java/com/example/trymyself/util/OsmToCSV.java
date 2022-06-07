@@ -1,23 +1,16 @@
 package com.example.trymyself.util;
 
-import com.example.trymyself.entities.Edge;
-import com.example.trymyself.entities.NodeEntity;
-import com.example.trymyself.repo.EdgeRepo;
-import com.example.trymyself.repo.NodeEntityRepo;
+
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -84,7 +77,7 @@ public class OsmToCSV {
         List<String[]> csvBody = csvReader.readAll();
         CSVWriter writer = new CSVWriter(new FileWriter("D:\\COCCOC\\map.csv"), ',');
 
-  
+
         for (Node wayi : osmWayNodes) {
 
             if (wayi.hasContent()) {
@@ -115,10 +108,10 @@ public class OsmToCSV {
                     //read file :
 
 
-                    System.out.println(csvBody.get(node1MapIdx).toString());
+
                     String oldNode1FileEdges = csvBody.get(node1MapIdx)[4];
 
-                    System.out.println(csvBody.get(node2MapIdx).toString());
+
                     String oldNode2FileEdges = csvBody.get(node2MapIdx)[4];
 
                     String add1 = " " + node2MapIdx + ":" + weight;
@@ -155,14 +148,14 @@ public class OsmToCSV {
         return Haversine.distance(startLat, startLon, endLat, endLon);
     }
 
-    public static void main(String[] args) {
-        OsmToCSV o = new OsmToCSV();
-        try {
-            o.setupData();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args) {
+//        OsmToCSV o = new OsmToCSV();
+//        try {
+//            o.setupData();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
 }

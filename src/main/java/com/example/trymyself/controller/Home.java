@@ -1,9 +1,9 @@
 package com.example.trymyself.controller;
 
 import com.example.trymyself.algo.searchalgo.DijkstraSearchAlgo;
-import com.example.trymyself.dto.NodeEntityDto;
-import com.example.trymyself.repo.NodeEntityRepo;
-import com.example.trymyself.util.OsmToDB;
+import com.example.trymyself.dto.PointDto;
+import com.example.trymyself.model.AdjListGraph;
+import com.example.trymyself.model.Point;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,16 +11,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("")
 @RequiredArgsConstructor
 public class Home {
 
-    private final OsmToDB osmToDB;
-    private final NodeEntityRepo nodeEntityRepo;
+
     private final DijkstraSearchAlgo dijkstraSearchAlgo;
+    private final AdjListGraph adjListGraph;
 
 
     @RequestMapping("")
@@ -30,33 +32,22 @@ public class Home {
         return "home/index";
     }
 
-    @RequestMapping("setuposm")
+    @RequestMapping("setup-graph")
     @ResponseBody
-    public String setupOSM() {
-        osmToDB.setupData();
+    public String createGraph() throws IOException {
+        adjListGraph.setCsvFilePath("D:\\COCCOC\\map.csv");
+        adjListGraph.setupGraph();
         return "sc";
     }
 
 
     @GetMapping("api/search")
     @ResponseBody
-    public List<NodeEntityDto> getShortestPath(
+    public List<PointDto> getShortestPath(
             @RequestParam(value = "srcnodeid") Long srcNodeId,
             @RequestParam(value = "desnodeid") Long desNodeId) {
 
-        if (srcNodeId <= 1273 && desNodeId <= 1273) {
-            srcNodeId = nodeEntityRepo.getNodeEntityBySeid(srcNodeId).getId();
-            desNodeId = nodeEntityRepo.getNodeEntityBySeid(desNodeId).getId();
-        } else if (srcNodeId <= 1273) {
-            srcNodeId = nodeEntityRepo.getNodeEntityBySeid(srcNodeId).getId();
-        } else if (desNodeId <= 1273) {
-            desNodeId = nodeEntityRepo.getNodeEntityBySeid(desNodeId).getId();
-        }
-
-        //thuat toan
-        List<NodeEntityDto> rs = dijkstraSearchAlgo.findShortestPath(srcNodeId, desNodeId);
-
-        return rs;
+        return dijkstraSearchAlgo.findShortestPath(srcNodeId, desNodeId);
 
 
     }

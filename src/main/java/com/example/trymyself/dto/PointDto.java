@@ -1,5 +1,6 @@
 package com.example.trymyself.dto;
 
+import com.example.trymyself.model.Point;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,34 +9,28 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 
-public class NodeEntityDto implements Comparable<NodeEntityDto> {
+public class PointDto implements Comparable<PointDto> {
+
 
     private Long id;
-
     private String lat;
     private String lon;
 
-    //addtional for searching
     @JsonIgnore
     boolean visited = false;
 
     @JsonIgnore
-    private NodeEntityDto prev;
+    private PointDto prev;
 
 
-
-    //    @JsonIgnore
     private Double distance = Double.MAX_VALUE;
 
+
     @Override
-    public int compareTo(NodeEntityDto o) {
+    public int compareTo(PointDto o) {
         return Double.compare(this.distance, o.getDistance());
     }
 }
-
-
-//    List<EdgeDto>
-

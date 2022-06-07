@@ -1,10 +1,12 @@
 package com.example.trymyself.algo.searchalgo;
 
-import com.example.trymyself.dto.EdgeDto;
-import com.example.trymyself.dto.NodeEntityDto;
-import com.example.trymyself.mapper.NodeEntityMapper;
-import com.example.trymyself.repo.NodeEntityRepo;
-import com.example.trymyself.service.NodeEntityService;
+
+import com.example.trymyself.dto.PointDto;
+import com.example.trymyself.mapper.PointMapper;
+import com.example.trymyself.model.AdjListGraph;
+import com.example.trymyself.model.AdjListGraphItem;
+import com.example.trymyself.model.Edge;
+import com.example.trymyself.model.Point;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -14,62 +16,76 @@ import java.util.*;
 @RequiredArgsConstructor
 public class DijkstraSearchAlgo extends AbstractSearchAlgo {
 
-    private final NodeEntityRepo nodeEntityRepo;
+    private final AdjListGraph adjListGraph;
+    private final PointMapper pointMapper;
 
-    private final NodeEntityMapper nodeEntityMapper;
-    private final NodeEntityService nodeEntityService;
 
-    public List<NodeEntityDto> findShortestPath(Long srcNodeId, Long targetId) {
+    public List<PointDto> findShortestPath(Long srcNodeId, Long targetId) {
+
+        Map<Long, Integer> nodeIdIdxMap = adjListGraph.getNodeIdIdxMap();
+
+        List<AdjListGraphItem> data = adjListGraph.getData();
 
 
         Map<Long, Boolean> visitedNodeMarks = new HashMap<>();
-        List<NodeEntityDto> visitedNodes = new ArrayList<>();
+        List<PointDto> visitedNodes = new ArrayList<>();
 
-        NodeEntityDto srcNode = nodeEntityService.getDto(srcNodeId);
-        srcNode.setDistance(0.0);
-        PriorityQueue<NodeEntityDto> priorityQueue = new PriorityQueue<>();
-        priorityQueue.add(srcNode);
 
-        visitedNodeMarks.put(srcNodeId, true);
-        visitedNodes.add(srcNode);
+        int srcNodeIdx = nodeIdIdxMap.get(srcNodeId);
+        PointDto srcPointDto = pointMapper.toDto(data.get(srcNodeIdx).getPoint());
 
-        int i = 0;
+
+        srcPointDto.setDistance(0.0);
+
+        PriorityQueue<PointDto> priorityQueue = new PriorityQueue<>();
+        priorityQueue.add(srcPointDto);
+
+        visitedNodeMarks.put(srcPointDto.getId(), true);
+        visitedNodes.add(srcPointDto);
+
+
         while (!priorityQueue.isEmpty()) {
-            NodeEntityDto curNode = priorityQueue.poll();
+            PointDto curPointDto = priorityQueue.poll();
 
-            List<EdgeDto> edges = nodeEntityService.getEdgeDtos(curNode.getId());
-            for (EdgeDto edgeDtoi : edges) {
-                NodeEntityDto neighBour = edgeDtoi.getNeighbour();
-                if (visitedNodeMarks.get(neighBour.getId()) == null || visitedNodeMarks.get(neighBour.getId()) == false) {
+            //add
+            AdjListGraphItem curItem = data.get(nodeIdIdxMap.get(curPointDto.getId()));
+            //add
+            List<Edge> curEdges = curItem.getEdges();
 
-                    Double newDis = curNode.getDistance() + edgeDtoi.getWeight();
+            for (Edge edgei : curEdges) {
+                int neighBourIdx = edgei.getNeighBourIdx();
+                PointDto neighBouri = pointMapper.toDto(data.get(neighBourIdx).getPoint());
 
-                    if (newDis < neighBour.getDistance()) {
-                        priorityQueue.remove(neighBour);
-                        neighBour.setDistance(newDis);
-                        neighBour.setPrev(curNode);
-                        priorityQueue.add(neighBour);
+                if (visitedNodeMarks.get(neighBouri.getId()) == null || visitedNodeMarks.get(neighBouri.getId()) == false) {
+
+                    Double newDis = curPointDto.getDistance() + edgei.getWeight();
+
+                    if (newDis < neighBouri.getDistance()) {
+                        priorityQueue.remove(neighBouri);
+                        neighBouri.setDistance(newDis);
+                        neighBouri.setPrev(curPointDto);
+
+                        priorityQueue.add(neighBouri);
                     }
                 }
 
             }
-            visitedNodeMarks.put(curNode.getId(), true);
-            visitedNodes.add(curNode);
+            visitedNodeMarks.put(curPointDto.getId(), true);
+            visitedNodes.add(curPointDto);
 
-            i++;
-            System.out.println("_______________________CURNOW LA______i = " + i);
+
         }
 
 
-        NodeEntityDto target = null;
-        for (NodeEntityDto rsi : visitedNodes) {
+        PointDto target = null;
+        for (PointDto rsi : visitedNodes) {
             if (rsi.getId().equals(targetId)) {
                 target = rsi;
                 break;
             }
         }
-        List<NodeEntityDto> path = new ArrayList<>();
-        for (NodeEntityDto node = target; node != null; node = node.getPrev()) {
+        List<PointDto> path = new ArrayList<>();
+        for (PointDto node = target; node != null; node = node.getPrev()) {
             path.add(node);
         }
         Collections.reverse(path);
