@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -16,4 +17,9 @@ import java.util.List;
 public class AdjListGraphItem {
     private Point point;
     private List<Edge> edges;
+
+
+    public static void main(String[] args) {
+    }
+
 }

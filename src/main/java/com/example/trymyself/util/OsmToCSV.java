@@ -6,13 +6,34 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.web.client.HttpServerErrorException;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
+
 
 public class OsmToCSV {
     //    private MultipartFile osmFile;
@@ -22,12 +43,15 @@ public class OsmToCSV {
         try {
 
             SAXReader reader = new SAXReader();
-            Document document = reader.read(new File("D:\\COCCOC\\map.osm"));
+            Document document = reader.read(new File("D:\\COCCOC\\mapxmlCp.xml"));
 
             List<Node> osmNodeNodes = document.selectNodes("//node");
             List<Node> osmWayNodes = document.selectNodes("//way");
-            setUpNodes(osmNodeNodes);
-            setUpEdges(osmNodeNodes, osmWayNodes);
+//            setupPlaceLocation();
+//            setUpNodes(osmNodeNodes);
+//            setUpEdges(osmNodeNodes, osmWayNodes);
+
+
 
 
         } catch (DocumentException e) {
@@ -35,6 +59,8 @@ public class OsmToCSV {
         }//End try catch
 
     }
+
+
 
 
     public void setUpNodes(List<Node> osmNodeNodes) throws IOException {
@@ -108,7 +134,6 @@ public class OsmToCSV {
                     //read file :
 
 
-
                     String oldNode1FileEdges = csvBody.get(node1MapIdx)[4];
 
 
@@ -129,11 +154,7 @@ public class OsmToCSV {
         writer.writeAll(csvBody);
         writer.flush();
         writer.close();
-
-
         csvReader.close();
-
-
     }
 
 
@@ -156,6 +177,17 @@ public class OsmToCSV {
 //            e.printStackTrace();
 //        }
 //    }
+
+    public static void main(String[] args) {
+        OsmToCSV osmToCSV = new OsmToCSV();
+        try {
+            System.out.println("______________________");
+            osmToCSV.setupData();
+            System.out.println("______________________");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 }
