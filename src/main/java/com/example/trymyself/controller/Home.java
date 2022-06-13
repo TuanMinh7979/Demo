@@ -3,7 +3,6 @@ package com.example.trymyself.controller;
 import com.example.trymyself.algo.searchalgo.DijkstraSearchAlgo;
 import com.example.trymyself.dto.PointDto;
 import com.example.trymyself.model.AdjListGraph;
-import com.example.trymyself.model.Point;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("")

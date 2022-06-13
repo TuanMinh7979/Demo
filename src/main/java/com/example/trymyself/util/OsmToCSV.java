@@ -43,15 +43,13 @@ public class OsmToCSV {
         try {
 
             SAXReader reader = new SAXReader();
-            Document document = reader.read(new File("D:\\COCCOC\\mapxmlCp.xml"));
+            Document document = reader.read(new File("D:\\COCCOC\\smtvkoriRs123.xml"));
 
             List<Node> osmNodeNodes = document.selectNodes("//node");
             List<Node> osmWayNodes = document.selectNodes("//way");
 //            setupPlaceLocation();
-//            setUpNodes(osmNodeNodes);
-//            setUpEdges(osmNodeNodes, osmWayNodes);
-
-
+            setUpNodes(osmNodeNodes);
+            setUpEdges(osmNodeNodes, osmWayNodes);
 
 
         } catch (DocumentException e) {
@@ -59,8 +57,6 @@ public class OsmToCSV {
         }//End try catch
 
     }
-
-
 
 
     public void setUpNodes(List<Node> osmNodeNodes) throws IOException {
@@ -169,14 +165,7 @@ public class OsmToCSV {
         return Haversine.distance(startLat, startLon, endLat, endLon);
     }
 
-//    public static void main(String[] args) {
-//        OsmToCSV o = new OsmToCSV();
-//        try {
-//            o.setupData();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+
 
     public static void main(String[] args) {
         OsmToCSV osmToCSV = new OsmToCSV();

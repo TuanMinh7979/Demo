@@ -28,21 +28,8 @@ if (curUrl.indexOf("?") == -1) {
                     attribution: "© OpenStreetMap",
                 }).addTo(mynewmap);
 
-              let  newData=[
-                    {
-                        // 10.0494, 105.78589
-                        lat: "10.0494",
-                        lon: "105.78589",
 
-                    },
-                    {
-                        // 10.04944, 105.78559
-                        lat: "10.04944",
-                        lon: "105.78559",
-
-                    }
-                ]
-                newData.map(function (pi) {
+                data.map(function (pi) {
                     // let pi= JSON.parse(pointi);
                     // const latlongs=L.marker([pi.lat, pi.lon]).addTo(map);
                     latlngs.push([parseFloat(pi.lat), parseFloat(pi.lon)])

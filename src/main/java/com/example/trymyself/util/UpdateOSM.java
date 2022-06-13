@@ -96,6 +96,7 @@ public class UpdateOSM {
             for (int i = 0; i < 100; i++) {
                 Node nodei = osmPointNodeList.item(i);
                 if (nodei.hasChildNodes() && nodei.getChildNodes().getLength() > 3) {
+                    System.out.println("___**" + nodei.getAttributes().getNamedItem("id").getTextContent());
 
                     String oldlat = nodei.getAttributes().getNamedItem("lat").getTextContent();
                     String oldlong = nodei.getAttributes().getNamedItem("lon").getTextContent();
@@ -207,17 +208,7 @@ public class UpdateOSM {
 
 
         try {
-//            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-//            InputStream is = new FileInputStream("D:\\COCCOC\\smtvkoriRs.xml");
-
-//            DocumentBuilder db = dbf.newDocumentBuilder();
-
-//            Document doc1 = db.parse(is);
-
-
-            //ADD IN ORDERING WAY NODE
-//            Map<Long, List<Double>> wayIdListLonsMap = new HashMap<>();
             for (InsertData pairI : insertData) {
 
                 Long nbNodeId = pairI.getNbNodeId();
@@ -330,10 +321,11 @@ public class UpdateOSM {
             NodeList osmWayNodes = docWay.getElementsByTagName("way");
             String wayIdStr = "";
 
+            int ci = 0;
             for (int i = 0; i < osmWayNodes.getLength(); i++) {
                 Node curWayNode = osmWayNodes.item(i);
                 Node lastTagNode = curWayNode.getChildNodes().item(curWayNode.getChildNodes().getLength() - 2);
-
+                ci++;
                 if (!streetName.equals("nullname") && lastTagNode.getAttributes().getNamedItem("k").getTextContent().equals("name") && lastTagNode.getAttributes().getNamedItem("v").getTextContent().equals(streetName)) {
                     wayIdStr = curWayNode.getAttributes().getNamedItem("id").getTextContent();
                     return Long.parseLong(wayIdStr);
@@ -341,6 +333,10 @@ public class UpdateOSM {
                 if (streetName.equals("nullname") && !lastTagNode.getAttributes().getNamedItem("k").equals("name")) {
                     wayIdStr = curWayNode.getAttributes().getNamedItem("id").getTextContent();
                     return Long.parseLong(wayIdStr);
+                }
+
+                if (ci == osmWayNodes.getLength() - 1) {
+                    throw new RuntimeException("OTHER CASE OCCUR.......");
                 }
 
             }
@@ -362,11 +358,11 @@ public class UpdateOSM {
 
     public static void main(String[] args) throws Exception {
         UpdateOSM obj = new UpdateOSM();
-//        obj.setupPlaceLocation();
+        obj.setupPlaceLocation();
 
-        obj.setupResource();
+//        obj.setupResource();
 
-        obj.addInOrderWay();
+//        obj.addInOrderWay();
 
     }
 }
