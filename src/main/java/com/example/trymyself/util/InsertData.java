@@ -10,7 +10,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class AddAndNbNodeId {
+public class InsertData {
     private Long addPointNodeId;
     private Long nbNodeId;
+    private String streetName;
 }

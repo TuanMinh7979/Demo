@@ -28,7 +28,7 @@ public class UpdateOSM {
     private List<Node> osmWayNodes = new ArrayList<>();
     private Map<Long, Integer> wayIdIdxMap = new HashMap<>();
 
-    private List<AddAndNbNodeId> addAndNbNodeIds = new ArrayList<>();
+    private List<InsertData> insertData = new ArrayList<>();
 
     private DocumentBuilderFactory dbf = null;
     private DocumentBuilder db = null;
@@ -95,7 +95,8 @@ public class UpdateOSM {
             //reuse
             for (int i = 0; i < 100; i++) {
                 Node nodei = osmPointNodeList.item(i);
-                if (nodei.hasChildNodes()) {
+                if (nodei.hasChildNodes() && nodei.getChildNodes().getLength() > 3) {
+
                     String oldlat = nodei.getAttributes().getNamedItem("lat").getTextContent();
                     String oldlong = nodei.getAttributes().getNamedItem("lon").getTextContent();
                     String urlStr = "http://router.project-osrm.org/nearest/v1/driving/" + oldlong + "," + oldlat + "?number=1";
@@ -138,23 +139,26 @@ public class UpdateOSM {
                         //reuse
                         Long addPointNodeId = Long.parseLong(nodei.getAttributes().getNamedItem("id").getTextContent());
 //                        addAndNbNodeIds.add(new AddAndNbNodeId(addPointNodeId, dataNbNodeId));
-                        //will del
-                        sb.append(addPointNodeId + ":" + dataNbNodeId + "\n");
-                        //will del
+
 
                         //reuse
 
                         //data
                         String dataStreetName = String.valueOf(nearestWaypoint.get("name"));
                         ///data
+
+                        //will del
+                        if (dataStreetName.isEmpty()) {
+                            dataStreetName = "nullname";
+                        }
+                        sb.append(addPointNodeId + ":" + dataNbNodeId + ":" + dataStreetName + "\n");
+                        //will del
+
                         JSONArray location = (JSONArray) nearestWaypoint.get("location");
                         //data
                         String datalong = String.valueOf(location.get(0));
                         String datalat = String.valueOf(location.get(1));
                         ///data
-
-                        System.out.println("***" + dataNbNodeId + " " + "streetname: " + dataStreetName + " " + datalong + " " + datalat);
-
                         //GET DATA
 
 
@@ -213,16 +217,17 @@ public class UpdateOSM {
 
 
             //ADD IN ORDERING WAY NODE
-            Map<Long, InsertedNumPair> wayInsertedNumMap = new HashMap<>();
-            for (AddAndNbNodeId pairI : addAndNbNodeIds) {
+            Map<Long, List<Double>> wayIdListLonsMap = new HashMap<>();
+            for (InsertData pairI : insertData) {
 
                 Long nbNodeId = pairI.getNbNodeId();
                 Long addPointNodeId = pairI.getAddPointNodeId();
+                String streetName = pairI.getStreetName();
+                //
+                System.out.println("nbnodeId la: " + nbNodeId);
+                Long wayId = getWayId(nbNodeId, streetName);
+                //
 
-
-                Long wayId = getWayId(nbNodeId);
-
-                System.out.println("WAY ID HERE: " + wayId);
                 Integer wayIdx = wayIdIdxMap.get(wayId);
 
                 Node wayNode = osmWayNodes.get(wayIdx);
@@ -230,85 +235,56 @@ public class UpdateOSM {
 
 
                 List<Node> ndNodeList = new ArrayList<>();
+
+                int nbNodeIdIdx = -1;
+                int s = 0;
                 for (int k = 0; k < wayChildNodeList.getLength(); k++) {
                     Node curWayChildNode = wayChildNodeList.item(k);
                     if (curWayChildNode.getNodeName().equals("nd")) {
+
                         ndNodeList.add(curWayChildNode);
-                    }
-                }
-                //
-
-                //
-                for (int h = 0; h < ndNodeList.size(); h++) {
-                    Node curNdNode = ndNodeList.get(h);
-                    Long curNdNodeId = Long.parseLong(curNdNode.getAttributes().getNamedItem("ref").getTextContent());
 
 
-                    if (curNdNodeId.equals(nbNodeId)) {
-                        int adjNbNdNodeIdx = h > 0 ? h - 1 : -1;
-                        if (adjNbNdNodeIdx != -1) {
-                            Node adjNdNode = ndNodeList.get(adjNbNdNodeIdx);
-                            Long adjNdNodeId = Long.parseLong(adjNdNode.getAttributes().getNamedItem("ref").getTextContent());
-
-                            Node nbPointNode = osmPointNodes.get(pointIdIdxMap.get(curNdNodeId));
-                            Node adjNbPointNode = osmPointNodes.get(pointIdIdxMap.get(adjNdNodeId));
-
-                            Double nbPointNodeLong = Double.parseDouble(nbPointNode.getAttributes().getNamedItem("lon").getTextContent());
-                            Double adjNbPointNodeLong = Double.parseDouble(adjNbPointNode.getAttributes().getNamedItem("lon").getTextContent());
-
-                            Node addPointNode = osmPointNodes.get(pointIdIdxMap.get(addPointNodeId));
-                            Double addPointNodeLong = Double.parseDouble(addPointNode.getAttributes().getNamedItem("lon").getTextContent());
-                            if (adjNbPointNodeLong > nbPointNodeLong) {
-                                //decrease
-
-                                if (addPointNodeLong > nbPointNodeLong) {
-                                    //dat tren
-                                    System.out.println("Giam dan -Dat tren");
-                                } else {
-                                    //dat duoi
-                                    System.out.println("Giam dan-Dat duoi");
-
-
-                                    Element nd = doc.createElement("nd");
-
-                                    nd.setAttribute("ref", String.valueOf(addPointNodeId));
-
-
-                                    Node posNode = ndNodeList.get(h + 1);
-                                    wayNode.insertBefore(nd, posNode);
-
-                                    //
-                                    if (wayInsertedNumMap.get(wayId) != null) {
-                                        wayInsertedNumMap.put(wayId,
-                                                wayInsertedNumMap.get(wayId).inBottomInsNum());
-                                    } else {
-                                        wayInsertedNumMap.put(wayId,
-                                                new InsertedNumPair(0, 1));
-                                    }
-                                    //
-
-                                }
-
-
-                            } else {
-                                //increase
-                                if (addPointNodeLong < nbPointNodeLong) {
-                                    //dat tren
-                                    System.out.println("Tang dan -Dat tren");
-                                } else {
-                                    //dat duoi
-                                    System.out.println("Tang dan -Dat duoi");
-                                }
-
-                            }
-                            System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-                        } else {
-
-                            System.out.println("out of index nhe");
-                        }
 
                     }
                 }
+
+                System.out.println("wayid la :" + wayId);
+
+
+                Long firstNodeId = Long.parseLong(ndNodeList.get(0).getAttributes().getNamedItem("ref").getTextContent());
+                Long secondNodeId = Long.parseLong(ndNodeList.get(1).getAttributes().getNamedItem("ref").getTextContent());
+
+                Node firstNode = osmPointNodes.get(pointIdIdxMap.get(firstNodeId));
+                Node secondNode = osmPointNodes.get(pointIdIdxMap.get(secondNodeId));
+
+                Double firstLong = Double.parseDouble(firstNode.getAttributes().getNamedItem("lon").getTextContent());
+                Double secondLong = Double.parseDouble(secondNode.getAttributes().getNamedItem("lon").getTextContent());
+
+
+                Node addPointNode = osmPointNodes.get(pointIdIdxMap.get(addPointNodeId));
+                Double addPointNodeLong = Double.parseDouble(addPointNode.getAttributes().getNamedItem("lon").getTextContent());
+
+
+                Element nd = doc.createElement("nd");
+                nd.setAttribute("ref", String.valueOf(addPointNodeId));
+                nd.setAttribute("lon", String.valueOf(addPointNodeLong));
+                Node posNode = null;
+
+
+                if (firstLong > secondLong) {
+                    //decrease
+
+
+                } else {
+                    //increase
+
+
+                }
+                wayNode.insertBefore(nd, posNode);
+                System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
+
             }
 
 
@@ -347,7 +323,8 @@ public class UpdateOSM {
                 String[] dataiarr = dataarr.split(":");
                 String id1 = dataiarr[0];
                 String id2 = dataiarr[1];
-                addAndNbNodeIds.add(new AddAndNbNodeId(Long.parseLong(id1), Long.parseLong(id2)));
+                String strName = dataiarr[2];
+                insertData.add(new InsertData(Long.parseLong(id1), Long.parseLong(id2), strName));
             }
             myReader.close();
         } catch (Exception e) {
@@ -355,7 +332,7 @@ public class UpdateOSM {
         }
     }
 
-    public Long getWayId(Long nbNodeId) {
+    public Long getWayId(Long nbNodeId, String streetName) {
         String urlStr = "https://api.openstreetmap.org/api/0.6/node/" + nbNodeId + "/ways";
         URL url = null;
         try {
@@ -366,9 +343,24 @@ public class UpdateOSM {
             Document docWay = builder.parse(conn.getInputStream());
 
             NodeList osmWayNodes = docWay.getElementsByTagName("way");
-            String wayIdStr = osmWayNodes.item(0).getAttributes().getNamedItem("id").getTextContent();
+            String wayIdStr = "";
 
-            return Long.parseLong(wayIdStr);
+            for (int i = 0; i < osmWayNodes.getLength(); i++) {
+                Node curWayNode = osmWayNodes.item(i);
+                Node lastTagNode = curWayNode.getChildNodes().item(curWayNode.getChildNodes().getLength() - 2);
+
+                if (!streetName.equals("nullname") && lastTagNode.getAttributes().getNamedItem("k").getTextContent().equals("name") && lastTagNode.getAttributes().getNamedItem("v").getTextContent().equals(streetName)) {
+                    wayIdStr = curWayNode.getAttributes().getNamedItem("id").getTextContent();
+                    return Long.parseLong(wayIdStr);
+                }
+                if (streetName.equals("nullname") && !lastTagNode.getAttributes().getNamedItem("k").equals("name")) {
+                    wayIdStr = curWayNode.getAttributes().getNamedItem("id").getTextContent();
+                    return Long.parseLong(wayIdStr);
+                }
+
+            }
+
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -385,8 +377,10 @@ public class UpdateOSM {
 
     public static void main(String[] args) throws Exception {
         UpdateOSM obj = new UpdateOSM();
-        obj.setupResource();
 //        obj.setupPlaceLocation();
+
+        obj.setupResource();
+
         obj.addInOrderWay();
 
     }
