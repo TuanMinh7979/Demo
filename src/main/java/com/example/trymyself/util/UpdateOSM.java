@@ -217,17 +217,14 @@ public class UpdateOSM {
 
 
             //ADD IN ORDERING WAY NODE
-            Map<Long, List<Double>> wayIdListLonsMap = new HashMap<>();
+//            Map<Long, List<Double>> wayIdListLonsMap = new HashMap<>();
             for (InsertData pairI : insertData) {
 
                 Long nbNodeId = pairI.getNbNodeId();
                 Long addPointNodeId = pairI.getAddPointNodeId();
                 String streetName = pairI.getStreetName();
-                //
-                System.out.println("nbnodeId la: " + nbNodeId);
-                Long wayId = getWayId(nbNodeId, streetName);
-                //
 
+                Long wayId = getWayId(nbNodeId, streetName);
                 Integer wayIdx = wayIdIdxMap.get(wayId);
 
                 Node wayNode = osmWayNodes.get(wayIdx);
@@ -236,58 +233,46 @@ public class UpdateOSM {
 
                 List<Node> ndNodeList = new ArrayList<>();
 
-                int nbNodeIdIdx = -1;
+
                 int s = 0;
+
+                List<Double> wayLonList = new ArrayList<>();
                 for (int k = 0; k < wayChildNodeList.getLength(); k++) {
                     Node curWayChildNode = wayChildNodeList.item(k);
                     if (curWayChildNode.getNodeName().equals("nd")) {
-
                         ndNodeList.add(curWayChildNode);
-
-
-
+                        Long curWayChildNodeId = Long.parseLong(curWayChildNode.getAttributes().getNamedItem("ref").getTextContent());
+                        wayLonList.add(Double.parseDouble(osmPointNodes.get(pointIdIdxMap.get(curWayChildNodeId)).getAttributes().getNamedItem("lon").getTextContent()));
                     }
                 }
 
+
                 System.out.println("wayid la :" + wayId);
 
-
-                Long firstNodeId = Long.parseLong(ndNodeList.get(0).getAttributes().getNamedItem("ref").getTextContent());
-                Long secondNodeId = Long.parseLong(ndNodeList.get(1).getAttributes().getNamedItem("ref").getTextContent());
-
-                Node firstNode = osmPointNodes.get(pointIdIdxMap.get(firstNodeId));
-                Node secondNode = osmPointNodes.get(pointIdIdxMap.get(secondNodeId));
-
-                Double firstLong = Double.parseDouble(firstNode.getAttributes().getNamedItem("lon").getTextContent());
-                Double secondLong = Double.parseDouble(secondNode.getAttributes().getNamedItem("lon").getTextContent());
-
+                Double firstLong = wayLonList.get(0);
+                Double secondLong = wayLonList.get(1);
 
                 Node addPointNode = osmPointNodes.get(pointIdIdxMap.get(addPointNodeId));
                 Double addPointNodeLong = Double.parseDouble(addPointNode.getAttributes().getNamedItem("lon").getTextContent());
 
-
                 Element nd = doc.createElement("nd");
                 nd.setAttribute("ref", String.valueOf(addPointNodeId));
                 nd.setAttribute("lon", String.valueOf(addPointNodeLong));
-                Node posNode = null;
-
+                wayLonList.add(addPointNodeLong);
 
                 if (firstLong > secondLong) {
                     //decrease
-
+                    Collections.sort(wayLonList, Comparator.reverseOrder());
 
                 } else {
                     //increase
-
+                    Collections.sort(wayLonList);
 
                 }
+                int addedEleIdx = wayLonList.indexOf(addPointNodeLong);
+                Node posNode = ndNodeList.get(addedEleIdx);
                 wayNode.insertBefore(nd, posNode);
-                System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-
-
             }
-
-
             Transformer tf1 = TransformerFactory.newInstance().newTransformer();
             tf1.setOutputProperty(OutputKeys.INDENT, "yes");
             tf1.setOutputProperty(OutputKeys.STANDALONE, "no");
