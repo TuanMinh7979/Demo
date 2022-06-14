@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public class InsertData {
-    private Long addPointNodeId;
+    private Long addNodeId;
     private Long nbNodeId;
     private String streetName;
 }

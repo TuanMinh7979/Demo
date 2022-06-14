@@ -1,8 +1,8 @@
 package com.example.trymyself.util;
 
-
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -12,15 +12,17 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.*;
 import java.util.*;
 
+@Component
 public class UpdateOSM {
     private List<Node> osmPointNodes = new ArrayList<>();
     private Map<Long, Integer> pointIdIdxMap = new HashMap<>();
@@ -28,57 +30,22 @@ public class UpdateOSM {
     private List<Node> osmWayNodes = new ArrayList<>();
     private Map<Long, Integer> wayIdIdxMap = new HashMap<>();
 
-    private List<InsertData> insertData = new ArrayList<>();
-
-    private DocumentBuilderFactory dbf = null;
-    private DocumentBuilder db = null;
-    private Document doc = null;
-
-    public void setupResource() {
-        try {
-            dbf = DocumentBuilderFactory.newInstance();
-
-            InputStream is = new FileInputStream("D:\\COCCOC\\smtvkoriRs.xml");
-
-            db = dbf.newDocumentBuilder();
-
-            doc = db.parse(is);
+    private List<InsertData> insertDatas = new ArrayList<>();
 
 
-            NodeList osmPointNodeList = doc.getElementsByTagName("node");
-
-            for (int i = 0; i < osmPointNodeList.getLength(); i++) {
-                Node curPointNode = osmPointNodeList.item(i);
-
-                this.osmPointNodes.add(curPointNode);
-                Long curWayNodeId = Long.parseLong(curPointNode.getAttributes().getNamedItem("id").getTextContent());
-                this.pointIdIdxMap.put(curWayNodeId, i);
-            }
-
-
-            NodeList osmWayNodeList = doc.getElementsByTagName("way");
-
-            for (int i = 0; i < osmWayNodeList.getLength(); i++) {
-                Node curWayNode = osmWayNodeList.item(i);
-
-                this.osmWayNodes.add(curWayNode);
-                Long curWayNodeId = Long.parseLong(curWayNode.getAttributes().getNamedItem("id").getTextContent());
-                this.wayIdIdxMap.put(curWayNodeId, i);
-            }
-
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+    public void updateOsmXmlData(String osmFilePath) {
+        setupPlaceLocation(osmFilePath);
+        addPlaceNodeToWay(osmFilePath);
+        System.out.println(">>>Update osm xml file data successfully!");
     }
 
 
-    public void setupPlaceLocation() {
+    private void setupPlaceLocation(String osmXmlFilePathToUpdate) {
         try {
 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-            InputStream is = new FileInputStream("D:\\COCCOC\\smtvkori.xml");
+            InputStream is = new FileInputStream(osmXmlFilePathToUpdate);
 
             DocumentBuilder db = dbf.newDocumentBuilder();
 
@@ -96,8 +63,6 @@ public class UpdateOSM {
             for (int i = 0; i < 100; i++) {
                 Node nodei = osmPointNodeList.item(i);
                 if (nodei.hasChildNodes() && nodei.getChildNodes().getLength() > 3) {
-                    System.out.println("___**" + nodei.getAttributes().getNamedItem("id").getTextContent());
-
                     String oldlat = nodei.getAttributes().getNamedItem("lat").getTextContent();
                     String oldlong = nodei.getAttributes().getNamedItem("lon").getTextContent();
                     String urlStr = "http://router.project-osrm.org/nearest/v1/driving/" + oldlong + "," + oldlat + "?number=1";
@@ -137,22 +102,16 @@ public class UpdateOSM {
                                 break;
                             }
                         }
-                        //reuse
-                        Long addPointNodeId = Long.parseLong(nodei.getAttributes().getNamedItem("id").getTextContent());
-//                        addAndNbNodeIds.add(new AddAndNbNodeId(addPointNodeId, dataNbNodeId));
 
-
-                        //reuse
-
-                        //data
+                        Long addNodeId = Long.parseLong(nodei.getAttributes().getNamedItem("id").getTextContent());
                         String dataStreetName = String.valueOf(nearestWaypoint.get("name"));
-                        ///data
-
+                        dataStreetName = dataStreetName.isEmpty() ? "nullname" : dataStreetName;
+                        insertDatas.add(new InsertData(addNodeId, dataNbNodeId, dataStreetName));
                         //will del
-                        if (dataStreetName.isEmpty()) {
-                            dataStreetName = "nullname";
-                        }
-                        sb.append(addPointNodeId + ":" + dataNbNodeId + ":" + dataStreetName + "\n");
+//                        if (dataStreetName.isEmpty()) {
+//                            dataStreetName = "nullname";
+//                        }
+//                        sb.append(addNodeId + ":" + dataNbNodeId + ":" + dataStreetName + "\n");
                         //will del
 
                         JSONArray location = (JSONArray) nearestWaypoint.get("location");
@@ -177,11 +136,9 @@ public class UpdateOSM {
                         e.printStackTrace();
                     }
                 }
-
-
             }
             //will del
-            writeToFile(sb.toString());
+//            writeToFile(sb.toString());
             //will del
 
             Transformer tf = TransformerFactory.newInstance().newTransformer();
@@ -189,33 +146,69 @@ public class UpdateOSM {
             tf.setOutputProperty(OutputKeys.STANDALONE, "no");
 
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult("D:\\COCCOC\\smtvkoriRs.xml");
+            StreamResult result = new StreamResult(osmXmlFilePathToUpdate);
 
             tf.transform(source, result);
 
 
-        } catch (Exception e) {
+        } catch (TransformerConfigurationException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
             e.printStackTrace();
         }
 
-
     }
 
-    public void addInOrderWay() {
-
-        readFromFile();
-//        addAndNbNodeIds is full after above statement
-
+    private void addPlaceNodeToWay(String osmXmlFilePathToUpdate) {
+        //setup resource
 
         try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-            for (InsertData pairI : insertData) {
+            InputStream is = new FileInputStream(osmXmlFilePathToUpdate);
+
+            DocumentBuilder db = dbf.newDocumentBuilder();
+
+            Document doc = db.parse(is);
+
+            NodeList osmPointNodeList = doc.getElementsByTagName("node");
+
+            for (int i = 0; i < osmPointNodeList.getLength(); i++) {
+                Node curPointNode = osmPointNodeList.item(i);
+
+                this.osmPointNodes.add(curPointNode);
+                Long curWayNodeId = Long.parseLong(curPointNode.getAttributes().getNamedItem("id").getTextContent());
+                this.pointIdIdxMap.put(curWayNodeId, i);
+            }
+
+
+            NodeList osmWayNodeList = doc.getElementsByTagName("way");
+
+            for (int i = 0; i < osmWayNodeList.getLength(); i++) {
+                Node curWayNode = osmWayNodeList.item(i);
+
+                this.osmWayNodes.add(curWayNode);
+                Long curWayNodeId = Long.parseLong(curWayNode.getAttributes().getNamedItem("id").getTextContent());
+                this.wayIdIdxMap.put(curWayNodeId, i);
+            }
+
+            //ADD NODEID TO WAY
+            for (InsertData pairI : insertDatas) {
 
                 Long nbNodeId = pairI.getNbNodeId();
-                Long addPointNodeId = pairI.getAddPointNodeId();
+                Long addNodeId = pairI.getAddNodeId();
                 String streetName = pairI.getStreetName();
 
                 Long wayId = getWayId(nbNodeId, streetName);
+
                 Integer wayIdx = wayIdIdxMap.get(wayId);
 
                 Node wayNode = osmWayNodes.get(wayIdx);
@@ -224,8 +217,6 @@ public class UpdateOSM {
 
                 List<Node> ndNodeList = new ArrayList<>();
 
-
-                int s = 0;
 
                 List<Double> wayLonList = new ArrayList<>();
                 for (int k = 0; k < wayChildNodeList.getLength(); k++) {
@@ -238,18 +229,16 @@ public class UpdateOSM {
                 }
 
 
-                System.out.println("wayid la :" + wayId);
-
                 Double firstLong = wayLonList.get(0);
                 Double secondLong = wayLonList.get(1);
 
-                Node addPointNode = osmPointNodes.get(pointIdIdxMap.get(addPointNodeId));
-                Double addPointNodeLong = Double.parseDouble(addPointNode.getAttributes().getNamedItem("lon").getTextContent());
+                Node addPointNode = osmPointNodes.get(pointIdIdxMap.get(addNodeId));
+                Double addNodeLong = Double.parseDouble(addPointNode.getAttributes().getNamedItem("lon").getTextContent());
 
                 Element nd = doc.createElement("nd");
-                nd.setAttribute("ref", String.valueOf(addPointNodeId));
-                nd.setAttribute("lon", String.valueOf(addPointNodeLong));
-                wayLonList.add(addPointNodeLong);
+                nd.setAttribute("ref", String.valueOf(addNodeId));
+                nd.setAttribute("lon", String.valueOf(addNodeLong));
+                wayLonList.add(addNodeLong);
 
                 if (firstLong > secondLong) {
                     //decrease
@@ -260,53 +249,32 @@ public class UpdateOSM {
                     Collections.sort(wayLonList);
 
                 }
-                int addedEleIdx = wayLonList.indexOf(addPointNodeLong);
+                int addedEleIdx = wayLonList.indexOf(addNodeLong);
                 Node posNode = ndNodeList.get(addedEleIdx);
                 wayNode.insertBefore(nd, posNode);
             }
-            Transformer tf1 = TransformerFactory.newInstance().newTransformer();
-            tf1.setOutputProperty(OutputKeys.INDENT, "yes");
-            tf1.setOutputProperty(OutputKeys.STANDALONE, "no");
-
+            Transformer tf = TransformerFactory.newInstance().newTransformer();
+            tf.setOutputProperty(OutputKeys.INDENT, "yes");
+            tf.setOutputProperty(OutputKeys.STANDALONE, "no");
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult("D:\\COCCOC\\smtvkoriRs123.xml");
+            StreamResult result = new StreamResult(osmXmlFilePathToUpdate);
+            tf.transform(source, result);
 
-            tf1.transform(source, result);
-
-        } catch (Exception e) {
+        } catch (TransformerConfigurationException e) {
             e.printStackTrace();
-        }
-
-
-        //ADD IN ORDERING WAY NODE
-    }
-
-    public void writeToFile(String data) throws IOException {
-        File output = new File("D:\\COCCOC\\smtvkoriRsPair.xml");
-        FileWriter writer = new FileWriter(output);
-
-        writer.write(data);
-        writer.flush();
-        writer.close();
-    }
-
-    public void readFromFile() {
-        try {
-            File myObj = new File("D:\\COCCOC\\smtvkoriRsPair.xml");
-            Scanner myReader = new Scanner(myObj);
-            while (myReader.hasNextLine()) {
-                String dataarr = myReader.nextLine();
-                String[] dataiarr = dataarr.split(":");
-                String id1 = dataiarr[0];
-                String id2 = dataiarr[1];
-                String strName = dataiarr[2];
-                insertData.add(new InsertData(Long.parseLong(id1), Long.parseLong(id2), strName));
-            }
-            myReader.close();
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
             e.printStackTrace();
         }
     }
+
 
     public Long getWayId(Long nbNodeId, String streetName) {
         String urlStr = "https://api.openstreetmap.org/api/0.6/node/" + nbNodeId + "/ways";
@@ -314,34 +282,44 @@ public class UpdateOSM {
         try {
             url = new URL(urlStr);
             URLConnection conn = url.openConnection();
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document docWay = builder.parse(conn.getInputStream());
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(conn.getInputStream());
 
-            NodeList osmWayNodes = docWay.getElementsByTagName("way");
+            NodeList osmWayNodes = doc.getElementsByTagName("way");
             String wayIdStr = "";
 
-            int ci = 0;
             for (int i = 0; i < osmWayNodes.getLength(); i++) {
-                Node curWayNode = osmWayNodes.item(i);
-                Node lastTagNode = curWayNode.getChildNodes().item(curWayNode.getChildNodes().getLength() - 2);
-                ci++;
-                if (!streetName.equals("nullname") && lastTagNode.getAttributes().getNamedItem("k").getTextContent().equals("name") && lastTagNode.getAttributes().getNamedItem("v").getTextContent().equals(streetName)) {
-                    wayIdStr = curWayNode.getAttributes().getNamedItem("id").getTextContent();
-                    return Long.parseLong(wayIdStr);
-                }
-                if (streetName.equals("nullname") && !lastTagNode.getAttributes().getNamedItem("k").equals("name")) {
-                    wayIdStr = curWayNode.getAttributes().getNamedItem("id").getTextContent();
-                    return Long.parseLong(wayIdStr);
-                }
+                Node wayNodei = osmWayNodes.item(i);
+                NodeList wayNodeiChilds = wayNodei.getChildNodes();
 
-                if (ci == osmWayNodes.getLength() - 1) {
-                    throw new RuntimeException("OTHER CASE OCCUR.......");
+                for (int j = wayNodeiChilds.getLength() - 1; j >= 0; j--) {
+
+                    Node childNode = wayNodeiChilds.item(j);
+
+                    if (childNode.getNodeName().equals("tag")) {
+                        System.out.println(childNode.getAttributes().getNamedItem("k").getTextContent());
+                        System.out.println(childNode.getAttributes().getNamedItem("v").getTextContent());
+                        if (!streetName.equals("nullname")
+                                && childNode.getAttributes().getNamedItem("k").getTextContent().equals("name")
+                                && childNode.getAttributes().getNamedItem("v").getTextContent().equals(streetName)) {
+                            wayIdStr = wayNodei.getAttributes().getNamedItem("id").getTextContent();
+                            return Long.parseLong(wayIdStr);
+                        }
+
+                        if (streetName.equals("nullname") && !childNode.getAttributes().getNamedItem("k").equals("name")) {
+                            wayIdStr = wayNodei.getAttributes().getNamedItem("id").getTextContent();
+                            return Long.parseLong(wayIdStr);
+                        }
+
+
+                    }
+
+
                 }
 
             }
-
-
+            if (wayIdStr.equals("")) throw new RuntimeException("Way id is not found");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -351,18 +329,40 @@ public class UpdateOSM {
         } catch (SAXException e) {
             e.printStackTrace();
         }
-
         return null;
 
     }
 
-    public static void main(String[] args) throws Exception {
-        UpdateOSM obj = new UpdateOSM();
-        obj.setupPlaceLocation();
-
-//        obj.setupResource();
-
-//        obj.addInOrderWay();
-
-    }
+//    public static void main(String[] args) {
+//        UpdateOSM obj = new UpdateOSM("testFileToUpdate");
+//        obj.updateOsmXmlData();
+//    }
 }
+
+
+//    public void writeToFile(String data) throws IOException {
+//        File output = new File("D:\\COCCOC\\example.xml");
+//        FileWriter writer = new FileWriter(output);
+//
+//        writer.write(data);
+//        writer.flush();
+//        writer.close();
+//    }
+
+//    public void readFromFile() {
+//        try {
+//            File myObj = new File("example");
+//            Scanner myReader = new Scanner(myObj);
+//            while (myReader.hasNextLine()) {
+//                String dataarr = myReader.nextLine();
+//                String[] dataiarr = dataarr.split(":");
+//                String id1 = dataiarr[0];
+//                String id2 = dataiarr[1];
+//                String strName = dataiarr[2];
+//
+//            }
+//            myReader.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }

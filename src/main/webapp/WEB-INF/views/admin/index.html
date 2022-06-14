@@ -1,0 +1,46 @@
+<!--<!DOCTYPE html>-->
+<html lang="en" xmlns:layout="http://www.ultrag.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/masterlayout.html}">
+
+
+<th:block layout:fragment="addcss">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+          integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+
+</th:block>
+
+<head>
+
+<body style="background-color: darkslategray">
+
+
+<div layout:fragment="content">
+
+
+    <div style="padding:10px;margin: 0 auto; border: 5px solid lightskyblue;height:400px; width: 500px; border-radius: 6px">
+        <h3 style="color:white;" class="text-center">INPUT FOR MAP SIMULATOR</h3>
+        <div style="background-color: snow; width: 100%;height:300px;padding:6px; ">
+            <div class="col-12">
+                <form action="" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label><b>Osm file</b></label>
+                        <input name="file" class="form-control" type="file">
+                    </div>
+                    <button class="btn btn-success" type="submit">Submit</button>
+                </form>
+            </div>
+
+
+        </div>
+    </div>
+
+</div>
+
+<th:block layout:fragment="addscript">
+
+
+</th:block>
+</body>
+
+</html>

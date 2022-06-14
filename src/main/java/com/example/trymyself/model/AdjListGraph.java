@@ -26,42 +26,46 @@ public class AdjListGraph {
 
     private String csvFilePath;
 
-    public void setupGraph() throws IOException {
+    public void setupGraph(String csvFilePath) {
+        try {
+            CSVReader csvReader = new CSVReaderBuilder(new FileReader(csvFilePath))
+                    .build();
+            List<String[]> csvBody = csvReader.readAll();
+            for (String[] csvLine : csvBody) {
+                nodeIdIdxMap.put(Long.valueOf(csvLine[1]), Integer.parseInt(csvLine[0]));
 
-        CSVReader csvReader = new CSVReaderBuilder(new FileReader(csvFilePath))
-                .build();
-        List<String[]> csvBody = csvReader.readAll();
-        for (String[] csvLine : csvBody) {
-            nodeIdIdxMap.put(Long.valueOf(csvLine[1]), Integer.parseInt(csvLine[0]));
-
-        }
-
-        for (String[] csvLine : csvBody) {
-            Point point = new Point();
-            point.setId(Long.valueOf(csvLine[1]));
-            point.setLat(csvLine[2]);
-            point.setLon(csvLine[3]);
-
-
-            String fileEdgesStr = csvLine[4];
-            List<Edge> edgesData = new ArrayList<>();
-            List<String> fileEdges = new ArrayList<>(Arrays.asList(fileEdgesStr.split(" ")));
-            for (String edgei : fileEdges) {
-                String[] edgePair = edgei.split(":");
-                Edge newEdge = new Edge();
-                newEdge.setNeighBourIdx(Integer.valueOf(edgePair[0]));
-                newEdge.setWeight(Double.valueOf(edgePair[1]));
-                edgesData.add(newEdge);
             }
 
-            data.add(new AdjListGraphItem(point, edgesData));
+            for (String[] csvLine : csvBody) {
+                Point point = new Point();
+                point.setId(Long.valueOf(csvLine[1]));
+                point.setLat(csvLine[2]);
+                point.setLon(csvLine[3]);
 
 
+                String fileEdgesStr = csvLine[4];
+                List<Edge> edgesData = new ArrayList<>();
+                List<String> fileEdges = new ArrayList<>(Arrays.asList(fileEdgesStr.split(" ")));
+                for (String edgei : fileEdges) {
+                    String[] edgePair = edgei.split(":");
+                    Edge newEdge = new Edge();
+                    newEdge.setNeighBourIdx(Integer.valueOf(edgePair[0]));
+                    newEdge.setWeight(Double.valueOf(edgePair[1]));
+                    edgesData.add(newEdge);
+                }
+
+                data.add(new AdjListGraphItem(point, edgesData));
+
+
+            }
+            csvReader.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        csvReader.close();
+
     }
-
-
 
 }
 
